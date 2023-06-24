@@ -72,7 +72,7 @@ if version.parse(torch.__version__) >= version.parse("1.6"):
 if is_datasets_available():
     import datasets
 
-from transformers.trainer import _model_unwrap
+from transformers.trainer import unwrap_model
 from transformers.optimization import Adafactor, AdamW, get_scheduler
 import copy
 # Set path to SentEval
@@ -151,7 +151,7 @@ class CLTrainer(Trainer):
 
         # In all cases, including ddp/dp/deepspeed, self.model is always a reference to the model we
         # want to save.
-        assert _model_unwrap(model) is self.model, "internal model should be a reference to self.model"
+        assert unwrap_model(model) is self.model, "internal model should be a reference to self.model"
 
         # Determine the new best metric / best model checkpoint
         if metrics is not None and self.args.metric_for_best_model is not None:

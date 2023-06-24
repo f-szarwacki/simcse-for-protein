@@ -1,9 +1,10 @@
-transformers==4.2.1
+transformers==4.30.2
 scipy
 datasets
 pandas
 scikit-learn
 prettytable
 gradio
-torch
+torch==1.7.1+cu110
 setuptools
+tape_proteins==0.5

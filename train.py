@@ -33,8 +33,8 @@ from transformers import (
 from transformers.tokenization_utils_base import BatchEncoding, PaddingStrategy, PreTrainedTokenizerBase
 from transformers.trainer_utils import is_main_process
 from transformers.data.data_collator import DataCollatorForLanguageModeling
-from transformers.file_utils import cached_property, torch_required, is_torch_available, is_torch_tpu_available
-from simcse.models import RobertaForCL, BertForCL
+from transformers.file_utils import cached_property, requires_backends, is_torch_available, is_torch_tpu_available
+from simcse.models import RobertaForCL, BertForCL, EsmForCL
 from simcse.trainers import CLTrainer
 
 logger = logging.getLogger(__name__)
@@ -196,8 +196,8 @@ class OurTrainingArguments(TrainingArguments):
     )
 
     @cached_property
-    @torch_required
     def _setup_devices(self) -> "torch.device":
+        requires_backends(self, ["torch"])
         logger.info("PyTorch: setting up devices")
         if self.no_cuda:
             device = torch.device("cpu")
@@ -371,6 +371,16 @@ def main():
             if model_args.do_mlm:
                 pretrained_model = BertForPreTraining.from_pretrained(model_args.model_name_or_path)
                 model.lm_head.load_state_dict(pretrained_model.cls.predictions.state_dict())
+        elif 'esm' in model_args.model_name_or_path:
+            model = EsmForCL.from_pretrained(
+                model_args.model_name_or_path,
+                from_tf=bool(".ckpt" in model_args.model_name_or_path),
+                config=config,
+                cache_dir=model_args.cache_dir,
+                revision=model_args.model_revision,
+                use_auth_token=True if model_args.use_auth_token else None,
+                model_args=model_args
+            )
         else:
             raise NotImplementedError
     else:
