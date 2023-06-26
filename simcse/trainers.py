@@ -176,7 +176,7 @@ class CLTrainer(Trainer):
                     self.deepspeed.save_checkpoint(output_dir)
 
                 # Save optimizer and scheduler
-                if self.sharded_dpp:
+                if self.sharded_ddp:
                     self.optimizer.consolidate_state_dict()
 
                 if is_torch_tpu_available():
@@ -218,7 +218,7 @@ class CLTrainer(Trainer):
                 self.deepspeed.save_checkpoint(output_dir)
 
             # Save optimizer and scheduler
-            if self.sharded_dpp:
+            if self.sharded_ddp:
                 self.optimizer.consolidate_state_dict()
 
             if is_torch_tpu_available():
@@ -329,7 +329,7 @@ class CLTrainer(Trainer):
             model = torch.nn.DataParallel(model)
 
         # Distributed training (should be after apex fp16 initialization)
-        if self.sharded_dpp:
+        if self.sharded_ddp:
             model = ShardedDDP(model, self.optimizer)
         elif self.args.local_rank != -1:
             model = torch.nn.parallel.DistributedDataParallel(
