@@ -8,3 +8,4 @@ gradio
 torch
 setuptools
 tape_proteins==0.5
+accelerate
