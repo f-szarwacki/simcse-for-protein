@@ -172,8 +172,8 @@ class CLTrainer(Trainer):
 
                 # Only save model when it is the best one
                 self.save_model(output_dir)
-                if self.deepspeed:
-                    self.deepspeed.save_checkpoint(output_dir)
+                if self.args.deepspeed:
+                    self.args.deepspeed.save_checkpoint(output_dir)
 
                 # Save optimizer and scheduler
                 if self.sharded_ddp:
@@ -185,7 +185,7 @@ class CLTrainer(Trainer):
                     with warnings.catch_warnings(record=True) as caught_warnings:
                         xm.save(self.lr_scheduler.state_dict(), os.path.join(output_dir, "scheduler.pt"))
                         reissue_pt_warnings(caught_warnings)
-                elif self.is_world_process_zero() and not self.deepspeed:
+                elif self.is_world_process_zero() and not self.args.deepspeed:
                     # deepspeed.save_checkpoint above saves model/optim/sched
                     torch.save(self.optimizer.state_dict(), os.path.join(output_dir, "optimizer.pt"))
                     with warnings.catch_warnings(record=True) as caught_warnings:
@@ -214,8 +214,8 @@ class CLTrainer(Trainer):
                 self.store_flos()
 
             self.save_model(output_dir)
-            if self.deepspeed:
-                self.deepspeed.save_checkpoint(output_dir)
+            if self.args.deepspeed:
+                self.args.deepspeed.save_checkpoint(output_dir)
 
             # Save optimizer and scheduler
             if self.sharded_ddp:
@@ -227,7 +227,7 @@ class CLTrainer(Trainer):
                 with warnings.catch_warnings(record=True) as caught_warnings:
                     xm.save(self.lr_scheduler.state_dict(), os.path.join(output_dir, "scheduler.pt"))
                     reissue_pt_warnings(caught_warnings)
-            elif self.is_world_process_zero() and not self.deepspeed:
+            elif self.is_world_process_zero() and not self.args.deepspeed:
                 # deepspeed.save_checkpoint above saves model/optim/sched
                 torch.save(self.optimizer.state_dict(), os.path.join(output_dir, "optimizer.pt"))
                 with warnings.catch_warnings(record=True) as caught_warnings:
@@ -470,10 +470,10 @@ class CLTrainer(Trainer):
                     and (step + 1) == steps_in_epoch
                 ):
                     # Gradient clipping
-                    if self.args.max_grad_norm is not None and self.args.max_grad_norm > 0 and not self.deepspeed:
+                    if self.args.max_grad_norm is not None and self.args.max_grad_norm > 0 and not self.args.deepspeed:
                         # deepspeed does its own clipping
 
-                        if self.use_amp:
+                        if self.use_cuda_amp:
                             # AMP: gradients need unscaling
                             self.scaler.unscale_(self.optimizer)
 
@@ -490,7 +490,7 @@ class CLTrainer(Trainer):
                     # Optimizer step
                     if is_torch_tpu_available():
                         xm.optimizer_step(self.optimizer)
-                    elif self.use_amp:
+                    elif self.use_cuda_amp:
                         self.scaler.step(self.optimizer)
                         self.scaler.update()
                     else:
@@ -504,13 +504,13 @@ class CLTrainer(Trainer):
                     self.state.epoch = epoch + (step + 1) / steps_in_epoch
                     self.control = self.callback_handler.on_step_end(self.args, self.state, self.control)
 
-                    self._maybe_log_save_evaluate(tr_loss, model, trial, epoch)
+                    self._maybe_log_save_evaluate(tr_loss, model, trial, epoch, ignore_keys_for_eval=None)
 
                 if self.control.should_epoch_stop or self.control.should_training_stop:
                     break
 
             self.control = self.callback_handler.on_epoch_end(self.args, self.state, self.control)
-            self._maybe_log_save_evaluate(tr_loss, model, trial, epoch)
+            self._maybe_log_save_evaluate(tr_loss, model, trial, epoch, ignore_keys_for_eval=None)
 
             if self.args.tpu_metrics_debug or self.args.debug:
                 if is_torch_tpu_available():
@@ -541,8 +541,8 @@ class CLTrainer(Trainer):
                 state_dict = torch.load(os.path.join(self.state.best_model_checkpoint, WEIGHTS_NAME))
                 self.model.load_state_dict(state_dict)
 
-            if self.deepspeed:
-                self.deepspeed.load_checkpoint(
+            if self.args.deepspeed:
+                self.args.deepspeed.load_checkpoint(
                     self.state.best_model_checkpoint, load_optimizer_states=False, load_lr_scheduler_states=False
                 )
 
