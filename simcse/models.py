@@ -145,12 +145,7 @@ def cl_forward(cls,
         mlm_input_ids = mlm_input_ids.view((-1, mlm_input_ids.size(-1)))
         mlm_outputs = encoder(
             mlm_input_ids,
-            attention_mask=attention_mask,
-            token_type_ids=token_type_ids,
-            position_ids=position_ids,
-            head_mask=head_mask,
-            inputs_embeds=inputs_embeds,
-            output_attentions=output_attentions,
+            **{k: v for k, v in params.items() if v is not None},
             output_hidden_states=True if cls.model_args.pooler_type in ['avg_top2', 'avg_first_last'] else False,
             return_dict=True,
         )
