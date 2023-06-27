@@ -199,6 +199,7 @@ class OurTrainingArguments(TrainingArguments):
     def _setup_devices(self) -> "torch.device":
         requires_backends(self, ["torch"])
         logger.info("PyTorch: setting up devices")
+        self.distributed_state = None
         if self.no_cuda:
             device = torch.device("cpu")
             self._n_gpu = 0

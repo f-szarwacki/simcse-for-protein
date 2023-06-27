@@ -124,15 +124,18 @@ def cl_forward(cls,
     if token_type_ids is not None:
         token_type_ids = token_type_ids.view((-1, token_type_ids.size(-1))) # (bs * num_sent, len)
 
-    # Get raw embeddings
-    outputs = encoder(
-        input_ids,
+    params = dict(
         attention_mask=attention_mask,
         token_type_ids=token_type_ids,
         position_ids=position_ids,
         head_mask=head_mask,
         inputs_embeds=inputs_embeds,
-        output_attentions=output_attentions,
+        output_attentions=output_attentions
+    )
+    # Get raw embeddings
+    outputs = encoder(
+        input_ids,
+        **{k: v for k, v in params.items() if v is not None},
         output_hidden_states=True if cls.model_args.pooler_type in ['avg_top2', 'avg_first_last'] else False,
         return_dict=True,
     )
@@ -247,14 +250,18 @@ def sentemb_forward(
 
     return_dict = return_dict if return_dict is not None else cls.config.use_return_dict
 
-    outputs = encoder(
-        input_ids,
+    params = dict(
         attention_mask=attention_mask,
         token_type_ids=token_type_ids,
         position_ids=position_ids,
         head_mask=head_mask,
         inputs_embeds=inputs_embeds,
-        output_attentions=output_attentions,
+        output_attentions=output_attentions
+    )
+
+    outputs = encoder(
+        input_ids,
+        **{k: v for k, v in params.items() if v is not None},
         output_hidden_states=True if cls.pooler_type in ['avg_top2', 'avg_first_last'] else False,
         return_dict=True,
     )

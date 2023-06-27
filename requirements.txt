@@ -5,6 +5,7 @@ pandas
 scikit-learn
 prettytable
 gradio
-torch==1.7.1+cu110
+torch
 setuptools
 tape_proteins==0.5
+accelerate
