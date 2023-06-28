@@ -447,3 +447,61 @@ class EsmForCL(EsmPreTrainedModel):
                 mlm_input_ids=mlm_input_ids,
                 mlm_labels=mlm_labels,
             )
+
+
+class ProtBertForCL(BertPreTrainedModel):
+    _keys_to_ignore_on_load_missing = [r"position_ids"]
+
+    def __init__(self, config, *model_args, **model_kargs):
+        super().__init__(config)
+        self.model_args = model_kargs["model_args"]
+        self.bert = BertModel(config, add_pooling_layer=False)
+
+        if self.model_args.do_mlm:
+            self.lm_head = BertLMPredictionHead(config)
+
+        cl_init(self, config)
+
+    def forward(self,
+        input_ids=None,
+        attention_mask=None,
+        token_type_ids=None,
+        position_ids=None,
+        head_mask=None,
+        inputs_embeds=None,
+        labels=None,
+        output_attentions=None,
+        output_hidden_states=None,
+        return_dict=None,
+        sent_emb=False,
+        mlm_input_ids=None,
+        mlm_labels=None,
+    ):
+        if sent_emb:
+            return sentemb_forward(self, self.bert,
+                input_ids=input_ids,
+                attention_mask=attention_mask,
+                token_type_ids=token_type_ids,
+                position_ids=position_ids,
+                head_mask=head_mask,
+                inputs_embeds=inputs_embeds,
+                labels=labels,
+                output_attentions=output_attentions,
+                output_hidden_states=output_hidden_states,
+                return_dict=return_dict,
+            )
+        else:
+            return cl_forward(self, self.bert,
+                input_ids=input_ids,
+                attention_mask=attention_mask,
+                token_type_ids=token_type_ids,
+                position_ids=position_ids,
+                head_mask=head_mask,
+                inputs_embeds=inputs_embeds,
+                labels=labels,
+                output_attentions=output_attentions,
+                output_hidden_states=output_hidden_states,
+                return_dict=return_dict,
+                mlm_input_ids=mlm_input_ids,
+                mlm_labels=mlm_labels,
+            )

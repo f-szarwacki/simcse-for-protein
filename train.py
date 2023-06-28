@@ -34,7 +34,7 @@ from transformers.tokenization_utils_base import BatchEncoding, PaddingStrategy,
 from transformers.trainer_utils import is_main_process
 from transformers.data.data_collator import DataCollatorForLanguageModeling
 from transformers.file_utils import cached_property, requires_backends, is_torch_available, is_torch_tpu_available
-from simcse.models import RobertaForCL, BertForCL, EsmForCL
+from simcse.models import RobertaForCL, ProtBertForCL, EsmForCL
 from simcse.trainers import CLTrainer
 
 logger = logging.getLogger(__name__)
@@ -360,7 +360,7 @@ def main():
                 model_args=model_args                  
             )
         elif 'bert' in model_args.model_name_or_path:
-            model = BertForCL.from_pretrained(
+            model = ProtBertForCL.from_pretrained(
                 model_args.model_name_or_path,
                 from_tf=bool(".ckpt" in model_args.model_name_or_path),
                 config=config,
