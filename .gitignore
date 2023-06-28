@@ -134,3 +134,6 @@ data
 result
 .venv-cu11
 wandb
+
+# IntelliJ
+.idea/
