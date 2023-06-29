@@ -17,7 +17,6 @@
         --mlm_probability 0.1 \
         --learning_rate 1e-5 \
         --per_device_train_batch_size 64 \
-        --max_seq_length 64 \
         --pooler_type cls \
         --overwrite_output_dir \
         --temp 0.05 \
