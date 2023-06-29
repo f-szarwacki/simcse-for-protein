@@ -4,8 +4,8 @@
 #SBATCH --qos=1gpu1d
 #SBATCH --nodes=1
 #SBATCH --gres=gpu:1
-#SBATCH --output=output.log
-#SBATCH --error=error.log
+#SBATCH --output=output_esm2_t6_8M_UR50D.log
+#SBATCH --error=error_esm2_t6_8M_UR50D.log
 #SBATCH --time=0-3:00:00
 
 ./venv/bin/python train.py \
