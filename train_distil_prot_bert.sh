@@ -16,10 +16,10 @@
         --do_mlm \
         --mlm_probability 0.15 \
         --learning_rate 1e-5 \
-        --per_device_train_batch_size 64 \
+        --per_device_train_batch_size 16 \
         --pooler_type cls \
         --overwrite_output_dir \
         --temp 0.05 \
         --do_train \
         --fp16 \
-        --gradient_accumulation_steps 8
+        --gradient_accumulation_steps 1
